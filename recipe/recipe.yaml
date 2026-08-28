@@ -44,7 +44,7 @@ build:
         fi
       done
 
-      ${{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
+      ${{ PYTHON }} -m pip install . --no-deps --no-build-isolation --ignore-requires-python -vv
   python:
     entry_points:
       - vaex = vaex.__main__:main
