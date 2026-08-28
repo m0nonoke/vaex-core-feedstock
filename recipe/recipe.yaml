@@ -1,0 +1,79 @@
+context:
+  version: "4.19.0"
+
+package:
+  name: vaex-core
+  version: ${{ version }}
+
+source:
+  url: https://github.com/vaexio/vaex/archive/refs/tags/v${{ version }}.tar.gz
+  sha256: cd99725bdbe2e7f878cc457aef1e2d71c1230851c0f71b94199ec4041eebedaa
+
+build:
+  number: 0
+  script:
+    content: |
+      cd packages/vaex-core
+      ${{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
+  python:
+    entry_points:
+      - vaex = vaex.__main__:main
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - if: build_platform != target_platform
+      then:
+        - python
+        - cross-python_${{ target_platform }}
+        - numpy >=2.0
+  host:
+    - python ${{ python_min }}.*
+    - setuptools
+    - numpy >=2.0
+    - pip
+    - pcre
+  run:
+    - python >=${{ python_min }}
+    - numpy >=1.19.3,<3
+    - aplus
+    - blake3
+    - cloudpickle
+    - dask !=2022.4.0,<2024.9
+    - filelock
+    - frozendict !=2.2.0
+    - future
+    - nest-asyncio >=1.3.3
+    - pandas >=1.0,<3
+    - pyarrow >=5.0.0
+    - pydantic >=1.8.0
+    - pyyaml
+    - rich
+    - six
+    - tabulate >=0.8.3
+
+tests:
+  - python:
+      imports:
+        - vaex
+        - vaex.vaexfast
+        - vaex.core
+      pip_check: true
+
+about:
+  homepage: https://www.github.com/vaexio/vaex
+  summary: Core of vaex
+  description: |
+    Core of vaex - a high performance Python library for lazy Out-of-Core
+    DataFrames to visualize and explore big tabular datasets.
+  license: MIT
+  license_file: packages/vaex-core/LICENSE.txt
+  documentation: http://vaex.io/docs/
+  repository: https://www.github.com/vaexio/vaex
+
+extra:
+  recipe-maintainers:
+    - maartenbreddels
+    - JovanVeljanoski
+    - m0nonoke
