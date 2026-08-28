@@ -23,19 +23,20 @@ requirements:
   build:
     - ${{ compiler('c') }}
     - ${{ compiler('cxx') }}
+    - ${{ stdlib("c") }}
     - if: build_platform != target_platform
       then:
         - python
         - cross-python_${{ target_platform }}
-        - numpy >=2.0
+        - numpy
   host:
-    - python ${{ python_min }}.*
+    - python
     - setuptools
-    - numpy >=2.0
+    - numpy
     - pip
     - pcre
   run:
-    - python >=${{ python_min }}
+    - python
     - numpy >=1.19.3,<3
     - aplus
     - blake3
