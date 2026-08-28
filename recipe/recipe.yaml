@@ -26,7 +26,7 @@ build:
   script:
     content: |
       cd packages/vaex-core
-      ${{ PYTHON }} -c "import pathlib; [pathlib.Path(f).write_text(pathlib.Path(f).read_text(encoding='utf-8').replace(o,n), encoding='utf-8') for f,o,n in [('vendor/boost/boost/numeric/conversion/detail/udt_builtin_mixture.hpp','enum udt_builtin_mixture_enum','enum udt_builtin_mixture_enum : int'),('vendor/boost/boost/numeric/conversion/detail/int_float_mixture.hpp','enum int_float_mixture_enum','enum int_float_mixture_enum : int')]]"
+      ${{ PYTHON }} -c "import pathlib; files = [('vendor/boost/boost/numeric/conversion/udt_builtin_mixture_enum.hpp','enum udt_builtin_mixture_enum','enum udt_builtin_mixture_enum : int'),('vendor/boost/boost/numeric/conversion/int_float_mixture_enum.hpp','enum int_float_mixture_enum','enum int_float_mixture_enum : int')]; [print('WARNING: pattern not found in', f) if o not in (t := pathlib.Path(f).read_text(encoding='utf-8')) else pathlib.Path(f).write_text(t.replace(o, n), encoding='utf-8') for f, o, n in files]"
       ${{ PYTHON }} -m pip install . --no-deps --no-build-isolation --ignore-requires-python -vv
   python:
     entry_points:
