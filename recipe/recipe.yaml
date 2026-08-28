@@ -6,14 +6,44 @@ package:
   version: ${{ version }}
 
 source:
-  url: https://github.com/vaexio/vaex/archive/refs/tags/v${{ version }}.tar.gz
-  sha256: cd99725bdbe2e7f878cc457aef1e2d71c1230851c0f71b94199ec4041eebedaa
+  - url: https://github.com/vaexio/vaex/archive/refs/tags/v${{ version }}.tar.gz
+    sha256: cd99725bdbe2e7f878cc457aef1e2d71c1230851c0f71b94199ec4041eebedaa
+  - url: https://github.com/pybind/pybind11/archive/07f30430d4186c2712761f1ffaea50ede63f2b2b.tar.gz
+    sha256: ebd38c7178d20dc8f45eb68088cfe657deea33d1e61b4177e8adcaf69b9d5f3b
+    target_directory: packages/vaex-core/vendor/pybind11
+  - url: https://github.com/martinmoene/string-view-lite/archive/dfa36547edc15585350f8f62c8153f20f34f39f4.tar.gz
+    sha256: 5c459507c64d01b7ffdc7396c0dd42ba77df2fa4728243c9dea36744eb58268b
+    target_directory: packages/vaex-core/vendor/string-view-lite
+  - url: https://github.com/vaexio/hopscotch-map/archive/2c7d29126cb212b7dd808ac19c808e47612aa941.tar.gz
+    sha256: b2aee9c25feef1e9951b414779a95d51dd0e524077cddc642f70a3c5467c4f4b
+    target_directory: packages/vaex-core/vendor/hopscotch-map
+  - url: https://github.com/skarupke/flat_hash_map/archive/2c4687431f978f02a3780e24b8b701d22aa32d9c.tar.gz
+    sha256: 606aef45bb69d2fd8247b872919dc01607fe4477df28d6e0b4e686b1b6651980
+    target_directory: packages/vaex-core/vendor/flat_hash_map
 
 build:
   number: 0
   script:
     content: |
       cd packages/vaex-core
+
+      # rattler-build may extract each vendor source with its archive top-level dir intact.
+      # Flatten each vendor dir if that happened (idempotent if already flat).
+      for sha_pair in \
+        "pybind11:07f30430d4186c2712761f1ffaea50ede63f2b2b" \
+        "string-view-lite:dfa36547edc15585350f8f62c8153f20f34f39f4" \
+        "hopscotch-map:2c7d29126cb212b7dd808ac19c808e47612aa941" \
+        "flat_hash_map:2c4687431f978f02a3780e24b8b701d22aa32d9c"; do
+        name="${sha_pair%%:*}"
+        sha="${sha_pair##*:}"
+        archive_dir="${name}-${sha}"
+        vendor_dir="vendor/${name}"
+        if [ -d "${vendor_dir}/${archive_dir}" ]; then
+          cp -a "${vendor_dir}/${archive_dir}/." "${vendor_dir}/"
+          rm -rf "${vendor_dir}/${archive_dir}"
+        fi
+      done
+
       ${{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vv
   python:
     entry_points:
